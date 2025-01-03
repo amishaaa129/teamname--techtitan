@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | GreenLog</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <%- include('partials/header') %>
+
+   
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                </div>
+
+                <section class="mb-4">
+                    <h3>Your Profile</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <p><strong>Name:</strong> Test Subject</p>
+                            <p><strong>Email:</strong> test@gmail.com</p>
+                            <p><strong>Total Waste Logged:</strong> 150 kg</p>
+                            <p><strong>Waste Reduction Goal:</strong> 200 kg</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <h3>Waste Tracking Trends</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <p><i class="fas fa-chart-bar"></i> Graph displaying waste trends over time</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="mb-4">
+                    <h3>Recent Waste Logs</h3>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            Logged 10 kg of plastic waste
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            Logged 5 kg of paper waste
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            Logged 2 kg of organic waste
+                        </a>
+                    </div>
+                </section>
+
+                <section>
+                    <h3>Personalized Recommendations</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <ul>
+                                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</li>
+                                <li>It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</li>
+                                <li>Contrary to popular belief, Lorem Ipsum is not simply random text.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>
+
+</body>
+
+</html>
