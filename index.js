@@ -233,7 +233,44 @@ app.delete('/delete-waste.html/:id', async (req, res) => {
         res.status(500).send('An error occurred while deleting the waste log.');
     }
 });
+
+app.get('/trends.html', async (req, res) => {
+    const userId = req.user?.id;
   
+    try {
+      const typeGroupedData = await db.query(
+        `SELECT type, SUM(quantity) AS quantity
+         FROM wastelog
+         WHERE user_id = $1
+         GROUP BY type`,
+        [userId]
+      );
+      const dateGroupedData = await db.query(
+        `SELECT
+                TO_CHAR(date, 'YYYY-MM') AS month,
+                SUM(quantity) AS quantity
+            FROM wastelog
+            WHERE user_id = $1
+            GROUP BY month
+            ORDER BY month`,
+        [userId]
+      );
+  
+      console.log("Aggregated Waste by Type:", typeGroupedData.rows);
+      console.log("Aggregated Waste by Date:", dateGroupedData.rows);
+  
+      res.render('trends.ejs', { 
+        typeGroupedData: typeGroupedData.rows, 
+        dateGroupedData: dateGroupedData.rows 
+      });
+  
+    } catch (error) {
+      console.error("Error fetching waste logs:", error);
+      res.status(500).send("Error fetching waste logs.");
+    }
+});
+  
+
 passport.serializeUser((user, cb) => {
     cb(null, user.id);
 });
