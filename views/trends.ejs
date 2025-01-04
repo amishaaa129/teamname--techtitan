@@ -19,16 +19,22 @@
     <canvas id="monthlyWasteChart"></canvas>
   </div>
 
+  <div>
+    <canvas id="dayOfWeekWasteChart"></canvas>
+  </div>
+
   <% // ejs starts here %>
-  <div id="wasteDataContainer" data-type-grouped='<%= JSON.stringify(typeGroupedData) %>' data-date-grouped='<%= JSON.stringify(dateGroupedData) %>'></div>
+  <div id="wasteDataContainer" data-type-grouped='<%= JSON.stringify(typeGroupedData) %>' data-date-grouped='<%= JSON.stringify(dateGroupedData) %>' data-day-of-week-grouped='<%= JSON.stringify(dayOfWeekGroupedData) %>'></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const typeGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.typeGrouped);
       const dateGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dateGrouped);
+      const dayOfWeekGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dayOfWeekGrouped);
 
       console.log("Waste Grouped by Type:", typeGroupedData);
       console.log("Waste Grouped by Date:", dateGroupedData);
+      console.log("Waste Grouped by Day of the Week:", dayOfWeekGroupedData);
 
       // Prepare data for the Pie Chart (grouped by type)
       const pieChartData = {
@@ -108,6 +114,43 @@
           },
           scales: {
             y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Waste Quantity (in units)',
+              }
+            }
+          }
+        }
+      });
+
+      // Prepare data for the Horizontal Bar Chart (grouped by day of the week)
+      const dayOfWeekData = {
+        labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        values: dayOfWeekGroupedData,
+      };
+
+      // Render the Horizontal Bar Chart
+      const ctx2 = document.getElementById('dayOfWeekWasteChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: dayOfWeekData.labels,
+          datasets: [{
+            label: 'Waste Logged (in units)',
+            data: dayOfWeekData.values,
+            backgroundColor: '#36A2EB',
+          }],
+        },
+        options: {
+          responsive: true,
+          indexAxis: 'y', // This makes the bar chart horizontal
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Waste Logged by Day of the Week' },
+          },
+          scales: {
+            x: {
               beginAtZero: true,
               title: {
                 display: true,

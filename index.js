@@ -236,7 +236,16 @@ app.delete('/delete-waste.html/:id', async (req, res) => {
 
 app.get('/trends.html', async (req, res) => {
     const userId = req.user?.id;
-  
+
+    const wasteLogs = await db.query(
+        `SELECT type, SUM(quantity) AS quantity, date
+         FROM wastelog
+         WHERE user_id = $1
+         GROUP BY type, date
+         ORDER BY date`,
+        [userId]
+      );
+
     try {
       const typeGroupedData = await db.query(
         `SELECT type, SUM(quantity) AS quantity
@@ -255,13 +264,28 @@ app.get('/trends.html', async (req, res) => {
             ORDER BY month`,
         [userId]
       );
+
+      const weekGroupedData = await db.query(
+        `SELECT type, SUM(quantity) AS quantity, date
+         FROM wastelog
+         WHERE user_id = $1
+         GROUP BY type, date
+         ORDER BY date`,
+        [userId]
+      );
+  
+      const dayOfWeekGroupedData = Array(7).fill(0); 
+      weekGroupedData.rows.forEach(log => {
+        const dayOfWeek = new Date(log.date).getDay(); 
+        dayOfWeekGroupedData[dayOfWeek] += parseFloat(log.quantity);
+      });
   
       console.log("Aggregated Waste by Type:", typeGroupedData.rows);
       console.log("Aggregated Waste by Date:", dateGroupedData.rows);
   
       res.render('trends.ejs', { 
         typeGroupedData: typeGroupedData.rows, 
-        dateGroupedData: dateGroupedData.rows 
+        dateGroupedData: dateGroupedData.rows, dayOfWeekGroupedData
       });
   
     } catch (error) {
@@ -269,7 +293,30 @@ app.get('/trends.html', async (req, res) => {
       res.status(500).send("Error fetching waste logs.");
     }
 });
+
+app.get('/recommendations.html', async (req, res) => {
+    try {
+      const userId = req.user?.id;
+      const result = await db.query('SELECT DISTINCT type FROM wastelog WHERE user_id = $1',[userId]);
+
+      const loggedWastes = result.rows.map(row => row.type);
   
+      // Prepare suggestions for the logged waste types
+      const recommendations = loggedWastes.map(wasteType => {
+        return {
+          wasteType,
+          suggestions: wasteSuggestions[wasteType] || {}
+        };
+      });
+  
+      // Render the recommendations page with the data
+      res.render('recommendation.ejs', { recommendations });
+  
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error fetching waste logs');
+    }
+});
 
 passport.serializeUser((user, cb) => {
     cb(null, user.id);
@@ -292,3 +339,78 @@ passport.deserializeUser(async (id, cb) => {
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
+
+
+  const wasteSuggestions = {
+    Plastic: {
+      suggestion1: "Minimize single-use plastics by choosing reusable items like bags, bottles, and containers.",
+      suggestion2: "Opt for products with minimal plastic packaging.",
+      suggestion3: "Repurpose plastic containers for storage or organization.",
+      suggestion4: "Use plastic bottles as planters or for DIY crafts.",
+      suggestion5: "Recycle plastic bottles, containers, and packaging according to local recycling guidelines."
+    },
+    Paper: {
+      suggestion1: "Use both sides of paper before discarding.",
+      suggestion2: "Switch to digital documents instead of printing whenever possible.",
+      suggestion3: "Use old newspapers or magazines for packaging material.",
+      suggestion4: "Repurpose scrap paper for notes or crafts.",
+      suggestion5: "Recycle paper products like newspapers, cardboard, and office paper."
+    },
+    Metal: {
+      suggestion1: "Buy items with less metal packaging, such as reusable containers or products in cardboard packaging.",
+      suggestion2: "Reduce the consumption of metal items like cans by switching to alternatives.",
+      suggestion3: "Repurpose metal cans as planters or storage containers.",
+      suggestion4: "Use metal scraps for DIY projects or artwork.",
+      suggestion5: "Recycle metals like aluminum and steel, ensuring they are cleaned before recycling."
+    },
+    Organic: {
+      suggestion1: "Minimize food waste by planning meals and buying only what you need.",
+      suggestion2: "Opt for organic food to support sustainable farming.",
+      suggestion3: "Use food scraps for composting to enrich soil.",
+      suggestion4: "Repurpose vegetable scraps for broths or smoothies.",
+      suggestion5: "Compost organic waste instead of sending it to a landfill."
+    },
+    Glass: {
+      suggestion1: "Choose glass containers over plastic ones.",
+      suggestion2: "Opt for reusable glass bottles or jars.",
+      suggestion3: "Repurpose glass jars as storage containers, vases, or candle holders.",
+      suggestion4: "Use broken glass pieces for mosaics or creative crafts.",
+      suggestion5: "Recycle glass containers by rinsing them before placing them in the recycling bin."
+    },
+    Textile: {
+      suggestion1: "Buy fewer clothing items by choosing timeless, durable pieces.",
+      suggestion2: "Avoid fast fashion and opt for sustainable brands.",
+      suggestion3: "Donate or sell old clothes to extend their life cycle.",
+      suggestion4: "Repurpose old clothes into cleaning rags or quilts.",
+      suggestion5: "Recycle textiles through specialized textile recycling programs."
+    },
+    Electronics: {
+      suggestion1: "Extend the lifespan of electronics by repairing or upgrading instead of replacing.",
+      suggestion2: "Donate old electronics that are still in working condition.",
+      suggestion3: "Recycle electronics at designated e-waste recycling centers.",
+      suggestion4: "Avoid throwing away batteries and recycle them through proper channels.",
+      suggestion5: "Buy electronics with longer lifespans and avoid planned obsolescence."
+    },
+    Hazardous: {
+      suggestion1: "Handle hazardous materials with care and dispose of them at certified hazardous waste facilities.",
+      suggestion2: "Avoid buying hazardous products like certain cleaning supplies or batteries when possible.",
+      suggestion3: "Check for safer, non-toxic alternatives for everyday products.",
+      suggestion4: "Recycle or properly dispose of used paints, pesticides, or chemicals.",
+      suggestion5: "Avoid mixing hazardous waste with regular waste to prevent contamination."
+    },
+    Construction: {
+      suggestion1: "Reduce the amount of construction waste by planning projects carefully.",
+      suggestion2: "Reuse materials like wood, metal, and bricks from old buildings.",
+      suggestion3: "Donate or sell salvageable construction materials.",
+      suggestion4: "Recycle concrete, asphalt, and other construction debris.",
+      suggestion5: "Consider sustainable building practices and use eco-friendly materials."
+    },
+    Medical: {
+      suggestion1: "Minimize the use of single-use medical products by opting for reusable or biodegradable alternatives.",
+      suggestion2: "Properly dispose of medical waste such as syringes and expired medications at designated collection points.",
+      suggestion3: "Donate unused medical supplies to hospitals or charitable organizations.",
+      suggestion4: "Avoid flushing medications or chemicals down the drain.",
+      suggestion5: "Recycle medical packaging where possible and follow local disposal guidelines."
+    }
+};
+  

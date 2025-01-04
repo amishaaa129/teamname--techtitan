@@ -1,0 +1,15 @@
+<%- include('partials/header') %>
+
+<h2> Here's what you can do to reduce the wastes that you have generated</h2>
+<% recommendations.forEach(function(waste) { %>
+    <h4><%= waste.wasteType.charAt(0).toUpperCase() + waste.wasteType.slice(1) %></h4>
+    <ul>
+      <li><%= waste.suggestions.suggestion1 %></li>
+      <li><%= waste.suggestions.suggestion2 %></li>
+      <li><%= waste.suggestions.suggestion3 %></li>
+      <li><%= waste.suggestions.suggestion4 %></li>
+      <li><%= waste.suggestions.suggestion5 %></li>
+    </ul>
+  <% }); %>
+
+  <%- include('partials/footer') %>
