@@ -187,8 +187,54 @@ app.post("/waste-log.html", async (req,res) => {
         res.status(500).send('An error occurred while logging waste.');
     }
 });
+
+app.get('/track-waste.html', async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) {
+        return res.status(403).send('Unauthorized: Please log in first.');
+        res.send("<a href='/login'>Login</a>");
+    }
+
+    try {
+        const result = await db.query(
+            `SELECT id, type, quantity, date FROM wastelog WHERE user_id = $1 ORDER BY date DESC`,
+            [userId]
+        );
+        res.render('track-waste.ejs', { wasteLogs: result.rows });
+    } catch (err) {
+        console.error('Error fetching waste logs:', err.message);
+        res.status(500).send('An error occurred while fetching your waste logs.');
+    }
+});
+
+app.post('/update-waste.html', async (req, res) => {
+    const { id, type, quantity, date } = req.body;
+
+    try {
+        await db.query(
+            `UPDATE wastelog SET type = $1, quantity = $2, date = $3 WHERE id = $4`,
+            [type, quantity, date, id]
+        );
+        res.redirect('/track-waste.html');
+    } catch (err) {
+        console.error('Error updating waste log:', err.message);
+        res.status(500).send('An error occurred while updating the waste log.');
+    }
+});
+
+app.delete('/delete-waste.html/:id', async (req, res) => {
+    const logId = req.params.id;
+
+    try {
+        await db.query(`DELETE FROM wastelog WHERE id = $1`, [logId]);
+        res.status(200).send('Log deleted successfully');
+    } catch (err) {
+        console.error('Error deleting waste log:', err.message);
+        res.status(500).send('An error occurred while deleting the waste log.');
+    }
+});
   
-  passport.serializeUser((user, cb) => {
+passport.serializeUser((user, cb) => {
     cb(null, user.id);
 });
 
