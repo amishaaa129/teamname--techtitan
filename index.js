@@ -73,35 +73,29 @@ app.get("/dashboard.html", async (req, res) => {
         const userId = req.user?.id;
 
         try {
-            // Fetching the user profile data
             const userProfile = await db.query('SELECT name, email FROM users WHERE id = $1;', [userId]);
 
-            // Total Waste Logged
             const totalWasteLoggedResult = await db.query(
                 'SELECT SUM(quantity) as total_quantity FROM wastelog WHERE user_id = $1;', [userId]
             );
 
             const totalWasteLogged = totalWasteLoggedResult.rows[0].total_quantity || 0;
 
-            // Most Frequent Waste Type
             const mostFrequentWasteResult = await db.query(
                 'SELECT type, COUNT(*) as count FROM wastelog WHERE user_id = $1 GROUP BY type ORDER BY count DESC LIMIT 1;', [userId]
             );
 
             const mostFrequentWasteType = mostFrequentWasteResult.rows[0]?.type || 'N/A';
 
-            // Recent Waste Logs (formatted date)
             const recentWasteLogs = await db.query(
                 'SELECT type, quantity, date FROM wastelog WHERE user_id = $1 ORDER BY date DESC LIMIT 5;', [userId]
             );
 
-            // Format the date for recent logs
             const formattedRecentWasteLogs = recentWasteLogs.rows.map(log => ({
                 ...log,
-                log_date: new Date(log.date).toLocaleDateString(),  // Format the date
+                log_date: new Date(log.date).toLocaleDateString(), 
             }));
 
-            // Fetch data for waste tracking trends (grouped by type, date, and day of week)
             const typeGroupedDataResult = await db.query(
                 'SELECT type, SUM(quantity) AS quantity FROM wastelog WHERE user_id = $1 GROUP BY type;', [userId]
             );
@@ -114,23 +108,14 @@ app.get("/dashboard.html", async (req, res) => {
                 'SELECT EXTRACT(DOW FROM date) AS day_of_week, SUM(quantity) AS quantity FROM wastelog WHERE user_id = $1 GROUP BY day_of_week ORDER BY day_of_week;', [userId]
             );
 
-            // Data transformation for Day of the Week chart
-            // Initialize an array to store the total quantities for each day of the week (0=Sunday, 6=Saturday)
-            const dayOfWeekData = [0, 0, 0, 0, 0, 0, 0]; // Start with zero values
-
-            // Populate the dayOfWeekData array with actual values
-            dayOfWeekGroupedDataResult.rows.forEach(row => {
-                dayOfWeekData[row.day_of_week] = row.quantity;
-            });
-
             res.render('dashboard.ejs', {
                 user: userProfile.rows[0],
                 totalWasteLogged: totalWasteLogged,
                 mostFrequentWasteType: mostFrequentWasteType,
-                recentWasteLogs: formattedRecentWasteLogs,  // Pass formatted recent waste logs
-                typeGroupedData: typeGroupedDataResult.rows,  // Data directly passed
-                dateGroupedData: dateGroupedDataResult.rows,  // Data directly passed
-                dayOfWeekGroupedData: dayOfWeekData,  // Pass the transformed dayOfWeek data
+                recentWasteLogs: formattedRecentWasteLogs,  
+                typeGroupedData: typeGroupedDataResult.rows,  
+                dateGroupedData: dateGroupedDataResult.rows,  
+                dayOfWeekGroupedData: dayOfWeekGroupedDataResult.rows,  
             });
 
         } catch (err) {
@@ -435,16 +420,16 @@ app.get('/carbon-footprint.html', async (req, res) => {
         const calculateDailyFootprint = (monthlyFootprint) => {
             if (!monthlyFootprint || isNaN(monthlyFootprint)) {
                 console.error("Invalid monthlyFootprint:", monthlyFootprint);
-                return 0; // Default to 0 if the input is invalid
+                return 0; 
             }
-            const daysInMonth = 30; // Assuming a 30-day average
+            const daysInMonth = 30; 
             return monthlyFootprint / daysInMonth;
         };
 
         const monthlyFootprint = calculateMonthlyFootprint(monthlyResult.rows);
-        console.log("Monthly Footprint:", monthlyFootprint); // Debug
+        console.log("Monthly Footprint:", monthlyFootprint); 
         const dailyFootprint = calculateDailyFootprint(monthlyFootprint);
-        console.log("Daily Footprint:", dailyFootprint); // Debug
+        console.log("Daily Footprint:", dailyFootprint); 
 
         const idealDailyTarget = 1; 
         let message;
@@ -459,7 +444,7 @@ app.get('/carbon-footprint.html', async (req, res) => {
         res.render('carbon-footprint.ejs', {
             totalCarbonFootprint: totalCarbonFootprint.toFixed(2),
             footprintBreakdown,
-            dailyFootprint: dailyFootprint.toFixed(2), // Corrected
+            dailyFootprint: dailyFootprint.toFixed(2), 
             message
         });
     } catch (err) {

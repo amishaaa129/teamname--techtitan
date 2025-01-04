@@ -72,129 +72,132 @@
                     </div>
                 </section>
                 
-                <%- include('partials/footer') %>
-                
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <div id="wasteDataContainer" data-type-grouped='<%= JSON.stringify(typeGroupedData) %>' data-date-grouped='<%= JSON.stringify(dateGroupedData) %>' data-day-of-week-grouped='<%= JSON.stringify(dayOfWeekGroupedData) %>'></div>
                 
                 <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const typeGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.typeGrouped);
-                        const dateGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dateGrouped);
-                        const dayOfWeekGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dayOfWeekGrouped);
-                
-                        // Pie Chart for Waste by Type
-                        const pieChartData = {
-                            labels: typeGroupedData.map(log => log.type),
-                            values: typeGroupedData.map(log => parseFloat(log.quantity)),
-                        };
-                
-                        const ctx = document.getElementById('wasteChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'pie',
-                            data: {
-                                labels: pieChartData.labels,
-                                datasets: [{
-                                    label: 'Waste Logged (in units)',
-                                    data: pieChartData.values,
-                                    backgroundColor: [
-                                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                                        '#FF9F40', '#C9CBCF', '#4D5360', '#74D99F', '#EF6C57'
-                                    ],
-                                }],
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: { position: 'top' },
-                                    title: { display: true, text: 'Waste Logs by Type' },
-                                },
-                            }
-                        });
-                
-                        // Line Chart for Monthly Waste Trends
-                        const lineChartData = {
-                            labels: dateGroupedData.map(log => log.month),
-                            values: dateGroupedData.map(log => parseFloat(log.quantity)),
-                        };
-                
-                        const ctx1 = document.getElementById('monthlyWasteChart').getContext('2d');
-                        new Chart(ctx1, {
-                            type: 'line',
-                            data: {
-                                labels: lineChartData.labels,
-                                datasets: [{
-                                    label: 'Waste Logged (in units)',
-                                    data: lineChartData.values,
-                                    borderColor: '#36A2EB',
-                                    fill: false,
-                                    tension: 0.1,
-                                }],
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: { position: 'top' },
-                                    title: { display: true, text: 'Monthly Waste Trends' },
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Waste Quantity (in units)',
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                
-                        // Horizontal Bar Chart for Waste Logged by Day of the Week
-                        const dayOfWeekData = {
-                            labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                            values: [0, 0, 0, 0, 0, 0, 0], // Initialize an array to store the values for each day
-                        };
-                
-                        // Fill the values array with actual quantities
-                        dayOfWeekGroupedData.forEach((log) => {
-                            dayOfWeekData.values[log.day_of_week] = log.quantity;
-                        });
-                
-                        const ctx2 = document.getElementById('dayOfWeekWasteChart').getContext('2d');
-                        new Chart(ctx2, {
-                            type: 'bar',
-                            data: {
-                                labels: dayOfWeekData.labels,
-                                datasets: [{
-                                    label: 'Waste Logged (in units)',
-                                    data: dayOfWeekData.values,
-                                    backgroundColor: '#36A2EB',
-                                }],
-                            },
-                            options: {
-                                responsive: true,
-                                indexAxis: 'y',
-                                plugins: {
-                                    legend: { position: 'top' },
-                                    title: { display: true, text: 'Waste Logged by Day of the Week' },
-                                },
-                                scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        title: {
-                                            display: true,
-                                            text: 'Waste Quantity (in units)',
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-                </script>
-                
+                   document.addEventListener('DOMContentLoaded', () => {
+    const typeGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.typeGrouped);
+    const dateGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dateGrouped);
+    const dayOfWeekGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dayOfWeekGrouped);
 
-                
+    console.log("Day of Week Data (Frontend):", dayOfWeekGroupedData); // Check the data
 
+    // Ensure dayOfWeekGroupedData contains numeric values and rename the variable to avoid conflicts
+    const dayOfWeekChartData = dayOfWeekGroupedData.map(item => {
+        const quantity = parseInt(item.quantity, 10); // Convert to number
+        return isNaN(quantity) ? 0 : quantity; // Fallback to 0 if the conversion fails
+    });
+
+    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekChartData); // Verify conversion
+
+    // Pie Chart for Waste by Type
+    const pieChartData = {
+        labels: typeGroupedData.map(log => log.type),
+        values: typeGroupedData.map(log => parseFloat(log.quantity)),
+    };
+
+    const ctx = document.getElementById('wasteChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: pieChartData.labels,
+            datasets: [{
+                label: 'Waste Logged (in units)',
+                data: pieChartData.values,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                    '#FF9F40', '#C9CBCF', '#4D5360', '#74D99F', '#EF6C57'
+                ],
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Waste Logs by Type' },
+            },
+        }
+    });
+
+    // Line Chart for Monthly Waste Trends
+    const lineChartData = {
+        labels: dateGroupedData.map(log => log.month),
+        values: dateGroupedData.map(log => parseFloat(log.quantity)),
+    };
+
+    const ctx1 = document.getElementById('monthlyWasteChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: lineChartData.labels,
+            datasets: [{
+                label: 'Waste Logged (in units)',
+                data: lineChartData.values,
+                borderColor: '#36A2EB',
+                fill: false,
+                tension: 0.1,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Monthly Waste Trends' },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Waste Quantity (in units)',
+                    }
+                }
+            }
+        }
+    });
+
+    // Horizontal Bar Chart for Waste Logged by Day of the Week
+    const dayOfWeekData = {
+        labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        values: dayOfWeekChartData,  // Use the modified, numeric values here
+    };
+
+    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekData); // Verify data structure
+
+    const ctx2 = document.getElementById('dayOfWeekWasteChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: dayOfWeekData.labels,
+            datasets: [{
+                label: 'Waste Logged (in units)',
+                data: dayOfWeekData.values,
+                backgroundColor: '#36A2EB',
+            }],
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y', // Makes the chart horizontal
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Waste Logged by Day of the Week' },
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Waste Quantity (in units)',
+                    }
+                }
+            }
+        }
+    });
+
+});
+ </script>
+<%- include('partials/footer') %>              
 </body>
 
 </html>
