@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Footprint</title>
+</head>
+<body>
+    <%- include('partials/header') %>
+    <h1>Your Carbon Footprint</h1>
+    <p>Total Carbon Footprint: <strong><%= totalCarbonFootprint %></strong> kg CO2</p>
+
+    <h2>Breakdown by Waste Type</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Waste Type</th>
+                <th>Carbon Footprint (kg CO2)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (const [type, footprint] of Object.entries(footprintBreakdown)) { %>
+                <tr>
+                    <td><%= type %></td>
+                    <td><%= footprint.toFixed(2) %></td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+    <h2>Daily Carbon Footprint</h2>
+    <p><strong>Your Daily Footprint:</strong> <%= dailyFootprint %> kg CO₂</p>
+    <p><strong>Message:</strong> <%= message %></p>
+    <%- include('partials/footer') %>
+</body>
+</html>

@@ -20,61 +20,180 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
                 </div>
-
+            
                 <section class="mb-4">
                     <h3>Your Profile</h3>
                     <div class="card">
                         <div class="card-body">
-                            <p><strong>Name:</strong> Test Subject</p>
-                            <p><strong>Email:</strong> test@gmail.com</p>
-                            <p><strong>Total Waste Logged:</strong> 150 kg</p>
-                            <p><strong>Waste Reduction Goal:</strong> 200 kg</p>
-                            <p><strong>Most Frequent Waste Type:</strong> Plastic</p>
+                            <p><strong>Name:</strong> <%= user.name %></p>
+                            <p><strong>Email:</strong> <%= user.email %></p>
+                            <p><strong>Total Waste Logged:</strong> <%= totalWasteLogged %> kg</p>
+                            <p><strong>Most Frequent Waste Type:</strong> <%= mostFrequentWasteType %></p>
                         </div>
                     </div>
                 </section>
-
+                
                 <section class="mb-4">
                     <h3>Waste Tracking Trends</h3>
                     <div class="card">
                         <div class="card-body">
-                            <p><i class="fas fa-chart-bar"></i> Graph displaying waste trends over time</p>
+                            <!-- Pie Chart for Waste Type Distribution -->
+                            <canvas id="wasteChart"></canvas>
                         </div>
                     </div>
                 </section>
-
+                
+                <section class="mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Line Chart for Monthly Waste Trends -->
+                            <canvas id="monthlyWasteChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Horizontal Bar Chart for Waste Logged by Day of the Week -->
+                            <canvas id="dayOfWeekWasteChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+                
                 <section class="mb-4">
                     <h3>Recent Waste Logs</h3>
                     <div class="list-group">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Logged 10 kg of plastic waste
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Logged 5 kg of paper waste
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            Logged 2 kg of organic waste
-                        </a>
+                        <% recentWasteLogs.forEach(function(log) { %>
+                            <a href="#" class="list-group-item list-group-item-action">
+                                Logged <%= log.quantity %> kg of <%= log.type %> waste on <%= log.log_date %>
+                            </a>
+                        <% }); %>
                     </div>
                 </section>
+                
+                <%- include('partials/footer') %>
+                
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <div id="wasteDataContainer" data-type-grouped='<%= JSON.stringify(typeGroupedData) %>' data-date-grouped='<%= JSON.stringify(dateGroupedData) %>' data-day-of-week-grouped='<%= JSON.stringify(dayOfWeekGroupedData) %>'></div>
+                
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const typeGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.typeGrouped);
+                        const dateGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dateGrouped);
+                        const dayOfWeekGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dayOfWeekGrouped);
+                
+                        // Pie Chart for Waste by Type
+                        const pieChartData = {
+                            labels: typeGroupedData.map(log => log.type),
+                            values: typeGroupedData.map(log => parseFloat(log.quantity)),
+                        };
+                
+                        const ctx = document.getElementById('wasteChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: pieChartData.labels,
+                                datasets: [{
+                                    label: 'Waste Logged (in units)',
+                                    data: pieChartData.values,
+                                    backgroundColor: [
+                                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                        '#FF9F40', '#C9CBCF', '#4D5360', '#74D99F', '#EF6C57'
+                                    ],
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'top' },
+                                    title: { display: true, text: 'Waste Logs by Type' },
+                                },
+                            }
+                        });
+                
+                        // Line Chart for Monthly Waste Trends
+                        const lineChartData = {
+                            labels: dateGroupedData.map(log => log.month),
+                            values: dateGroupedData.map(log => parseFloat(log.quantity)),
+                        };
+                
+                        const ctx1 = document.getElementById('monthlyWasteChart').getContext('2d');
+                        new Chart(ctx1, {
+                            type: 'line',
+                            data: {
+                                labels: lineChartData.labels,
+                                datasets: [{
+                                    label: 'Waste Logged (in units)',
+                                    data: lineChartData.values,
+                                    borderColor: '#36A2EB',
+                                    fill: false,
+                                    tension: 0.1,
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: { position: 'top' },
+                                    title: { display: true, text: 'Monthly Waste Trends' },
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Waste Quantity (in units)',
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                
+                        // Horizontal Bar Chart for Waste Logged by Day of the Week
+                        const dayOfWeekData = {
+                            labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                            values: [0, 0, 0, 0, 0, 0, 0], // Initialize an array to store the values for each day
+                        };
+                
+                        // Fill the values array with actual quantities
+                        dayOfWeekGroupedData.forEach((log) => {
+                            dayOfWeekData.values[log.day_of_week] = log.quantity;
+                        });
+                
+                        const ctx2 = document.getElementById('dayOfWeekWasteChart').getContext('2d');
+                        new Chart(ctx2, {
+                            type: 'bar',
+                            data: {
+                                labels: dayOfWeekData.labels,
+                                datasets: [{
+                                    label: 'Waste Logged (in units)',
+                                    data: dayOfWeekData.values,
+                                    backgroundColor: '#36A2EB',
+                                }],
+                            },
+                            options: {
+                                responsive: true,
+                                indexAxis: 'y',
+                                plugins: {
+                                    legend: { position: 'top' },
+                                    title: { display: true, text: 'Waste Logged by Day of the Week' },
+                                },
+                                scales: {
+                                    x: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: 'Waste Quantity (in units)',
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                </script>
+                
 
-                <section>
-                    <h3>Personalized Recommendations</h3>
-                    <div class="card">
-                        <div class="card-body">
-                            <ul>
-                                <li>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</li>
-                                <li>It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.</li>
-                                <li>Contrary to popular belief, Lorem Ipsum is not simply random text.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
-            </main>
-        </div>
-    </div>
-
-    <%- include('partials/footer') %>
+                
 
 </body>
 

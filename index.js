@@ -66,13 +66,80 @@ app.get("/logout", (req, res) => {
     });
 });
 
-app.get("/dashboard.html", (req,res) => {
-    if(req.isAuthenticated()){
-      console.log("User is authenticated:", req.user);
-      res.render("dashboard.ejs");
+app.get("/dashboard.html", async (req, res) => {
+    if (req.isAuthenticated()) {
+        console.log("User is authenticated:", req.user);
+
+        const userId = req.user?.id;
+
+        try {
+            // Fetching the user profile data
+            const userProfile = await db.query('SELECT name, email FROM users WHERE id = $1;', [userId]);
+
+            // Total Waste Logged
+            const totalWasteLoggedResult = await db.query(
+                'SELECT SUM(quantity) as total_quantity FROM wastelog WHERE user_id = $1;', [userId]
+            );
+
+            const totalWasteLogged = totalWasteLoggedResult.rows[0].total_quantity || 0;
+
+            // Most Frequent Waste Type
+            const mostFrequentWasteResult = await db.query(
+                'SELECT type, COUNT(*) as count FROM wastelog WHERE user_id = $1 GROUP BY type ORDER BY count DESC LIMIT 1;', [userId]
+            );
+
+            const mostFrequentWasteType = mostFrequentWasteResult.rows[0]?.type || 'N/A';
+
+            // Recent Waste Logs (formatted date)
+            const recentWasteLogs = await db.query(
+                'SELECT type, quantity, date FROM wastelog WHERE user_id = $1 ORDER BY date DESC LIMIT 5;', [userId]
+            );
+
+            // Format the date for recent logs
+            const formattedRecentWasteLogs = recentWasteLogs.rows.map(log => ({
+                ...log,
+                log_date: new Date(log.date).toLocaleDateString(),  // Format the date
+            }));
+
+            // Fetch data for waste tracking trends (grouped by type, date, and day of week)
+            const typeGroupedDataResult = await db.query(
+                'SELECT type, SUM(quantity) AS quantity FROM wastelog WHERE user_id = $1 GROUP BY type;', [userId]
+            );
+
+            const dateGroupedDataResult = await db.query(
+                'SELECT EXTRACT(MONTH FROM date) AS month, SUM(quantity) AS quantity FROM wastelog WHERE user_id = $1 GROUP BY month ORDER BY month;', [userId]
+            );
+
+            const dayOfWeekGroupedDataResult = await db.query(
+                'SELECT EXTRACT(DOW FROM date) AS day_of_week, SUM(quantity) AS quantity FROM wastelog WHERE user_id = $1 GROUP BY day_of_week ORDER BY day_of_week;', [userId]
+            );
+
+            // Data transformation for Day of the Week chart
+            // Initialize an array to store the total quantities for each day of the week (0=Sunday, 6=Saturday)
+            const dayOfWeekData = [0, 0, 0, 0, 0, 0, 0]; // Start with zero values
+
+            // Populate the dayOfWeekData array with actual values
+            dayOfWeekGroupedDataResult.rows.forEach(row => {
+                dayOfWeekData[row.day_of_week] = row.quantity;
+            });
+
+            res.render('dashboard.ejs', {
+                user: userProfile.rows[0],
+                totalWasteLogged: totalWasteLogged,
+                mostFrequentWasteType: mostFrequentWasteType,
+                recentWasteLogs: formattedRecentWasteLogs,  // Pass formatted recent waste logs
+                typeGroupedData: typeGroupedDataResult.rows,  // Data directly passed
+                dateGroupedData: dateGroupedDataResult.rows,  // Data directly passed
+                dayOfWeekGroupedData: dayOfWeekData,  // Pass the transformed dayOfWeek data
+            });
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).send('Error fetching dashboard data');
+        }
     } else {
-      console.log("User is not authenticated");
-      res.redirect("/login");
+        console.log("User is not authenticated");
+        res.redirect("/login");
     }
 });
 
@@ -318,6 +385,89 @@ app.get('/recommendations.html', async (req, res) => {
     }
 });
 
+app.get('/carbon-footprint.html', async (req, res) => {
+    const userId = req.user?.id;
+
+    try {
+        const result = await db.query(
+            `SELECT type, quantity 
+             FROM wastelog
+             WHERE user_id = $1;`,
+            [userId]
+        );
+
+        let totalCarbonFootprint = 0;
+        const footprintBreakdown = {};
+
+        result.rows.forEach(log => {
+            const { type, quantity } = log;
+            const emissionFactor = carbonEmissions[type] || 0; 
+            const carbonImpact = quantity * emissionFactor;
+
+            totalCarbonFootprint += carbonImpact;
+            footprintBreakdown[type] = (footprintBreakdown[type] || 0) + carbonImpact;
+        });
+
+        const monthlyResult = await db.query(
+            `SELECT type, SUM(quantity) as total_quantity
+             FROM wastelog
+             WHERE user_id = $1 AND date >= CURRENT_DATE - INTERVAL '30 days'
+             GROUP BY type;`,
+            [userId]
+        );
+
+        const calculateMonthlyFootprint = (wasteData) => {
+            let monthlyFootprint = 0;
+
+            wasteData.forEach(({ type, total_quantity }) => {
+                console.log("Type:", type, "Total Quantity:", total_quantity);
+                if (isNaN(total_quantity)) {
+                    console.error("Invalid quantity for type:", type, total_quantity);
+                    return;
+                }
+                const emissionFactor = carbonEmissions[type] || 0;
+                monthlyFootprint += total_quantity * emissionFactor;
+            });
+
+            return monthlyFootprint;
+        };
+
+        const calculateDailyFootprint = (monthlyFootprint) => {
+            if (!monthlyFootprint || isNaN(monthlyFootprint)) {
+                console.error("Invalid monthlyFootprint:", monthlyFootprint);
+                return 0; // Default to 0 if the input is invalid
+            }
+            const daysInMonth = 30; // Assuming a 30-day average
+            return monthlyFootprint / daysInMonth;
+        };
+
+        const monthlyFootprint = calculateMonthlyFootprint(monthlyResult.rows);
+        console.log("Monthly Footprint:", monthlyFootprint); // Debug
+        const dailyFootprint = calculateDailyFootprint(monthlyFootprint);
+        console.log("Daily Footprint:", dailyFootprint); // Debug
+
+        const idealDailyTarget = 1; 
+        let message;
+
+        if (dailyFootprint > idealDailyTarget) {
+            const reductionNeeded = dailyFootprint - idealDailyTarget;
+            message = `Your daily waste-related footprint is ${dailyFootprint.toFixed(2)} kg CO₂. To meet the ideal target of ${idealDailyTarget} kg CO₂/day, reduce emissions by ${reductionNeeded.toFixed(2)} kg CO₂/day.`;
+        } else {
+            message = `Great job! Your daily waste-related footprint is ${dailyFootprint.toFixed(2)} kg CO₂, which is within the ideal target of ${idealDailyTarget} kg CO₂/day.`;
+        }
+
+        res.render('carbon-footprint.ejs', {
+            totalCarbonFootprint: totalCarbonFootprint.toFixed(2),
+            footprintBreakdown,
+            dailyFootprint: dailyFootprint.toFixed(2), // Corrected
+            message
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error processing carbon footprint data');
+    }
+});
+
 passport.serializeUser((user, cb) => {
     cb(null, user.id);
 });
@@ -335,11 +485,22 @@ passport.deserializeUser(async (id, cb) => {
     }
   });
 
-
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
   });
 
+  const carbonEmissions = {
+    Plastic: 6,          
+    Paper: 1.3,         
+    Glass: 0.2,          
+    Metal: 0.5,          
+    Organic: -0.5,      
+    Textile: 3.2,        
+    Electronics: 1.8,    
+    Construction: 0.2,   
+    Hazardous: 4.5,      
+    Medical: 1.3        
+};
 
   const wasteSuggestions = {
     Plastic: {
