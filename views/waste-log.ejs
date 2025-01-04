@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Your Waste | GreenLog</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <%- include('partials/header') %>
+
+    <div class="container mt-5">
+        <h1>Log Your Waste</h1>
+        <p>Track the type and quantity of waste you are generating. Help us keep track of your progress in reducing waste!</p>
+
+        <form action="/waste-log.html" method="POST">
+            <div class="form-group">
+                <label for="wasteType">Waste Type</label>
+                <select class="form-control" id="wasteType" name="wasteType" required>
+                    <option value="Plastic">Plastic</option>
+                    <option value="Paper">Paper</option>
+                    <option value="Metal">Metal</option>
+                    <option value="Organic">Organic</option>
+                    <option value="Glass">Glass</option>
+                    <option value="Textile">Textile</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Hazardous">Hazardous</option>
+                    <option value="Construction">Construction/Demolition</option>
+                    <option value="Medical">Medical</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">Amount (kg)</label>
+                <input type="number" class="form-control" id="amount" name="amount" required step="0.01" min="0.01">
+            </div>
+
+            <div class="form-group">
+                <label for="logDate">Date and Time</label>
+                <input type="date" class="form-control" id="logDate" name="logDate" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Log Waste</button>
+        </form>
+    </div>
+
+    <%- include('partials/footer') %>
+
+</body>
+
+</html>
