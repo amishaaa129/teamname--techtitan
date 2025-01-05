@@ -1,5 +1,38 @@
-The project is a Waste Tracking Website, a platform designed to empower individuals and communities to better manage and reduce their waste footprint. It allows users to log the type and quantity of waste they generate, visualize waste trends through an analytics dashboard, and access personalized recycling and waste reduction tips. The website also includes educational resources about proper disposal practices and links to nearby recycling facilities, helping users make informed decisions about their waste. Gamification features, such as rewards and challenges, encourage consistent engagement and promote sustainable behaviors.
+Features -->
 
-The website addresses the critical problem of excessive waste generation and improper disposal, which are major contributors to environmental degradation. Many individuals are unaware of the impact of their waste habits or lack the tools to track and manage them effectively. By providing a platform that tracks waste, suggests actionable recycling ideas, and promotes conscious consumption, this project aims to fill that gap. It helps users understand their waste patterns and motivates them to adopt sustainable practices, thereby reducing their overall waste footprint.
+1. Secure user registration and login using hashed passwords (bcrypt).
 
-This project is highly relevant to Sustainable Development Goal 12: Responsible Consumption and Production, which focuses on minimizing waste generation and fostering sustainable consumption. By promoting waste tracking, recycling, and education, the website directly contributes to achieving this goal. It encourages individuals and businesses to make environmentally responsible choices, thereby addressing broader issues like resource depletion, pollution, and climate change. This relevance makes it a timely and impactful initiative in the global effort toward sustainability.
+2. Users can log the type and quantity of waste they generate. Supports various waste types like Plastic, Paper, Metal, Organic, Glass, and more. Logs include date and time for better tracking.
+
+3. Provides interactive charts to visualize waste trends:
+
+Pie Chart: Waste distribution by type.
+
+Line Chart: Monthly waste trends.
+
+Bar Chart: Waste generation by day of the week.
+
+4. Offers actionable suggestions for reducing waste based on user activity.
+
+5. Displays total carbon footprint based on waste logged. Provides a detailed breakdown of carbon footprint by waste type and daily carbon footprint comparison with sustainability goals.
+
+
+How to Use -->
+
+1. Register an account and log in.
+
+2. Log your daily waste.
+
+3. Check the dashboard to visualize trends.
+
+4. View your recommendations for sustainable practices.
+
+5. Monitor your carbon footprint to understand your environmental impact.
+
+
+Installation steps -->
+
+1. Fork the repository.
+2. Cd over into the waste-tracking-sytem directory.
+3. npm install
+4. node index.js
