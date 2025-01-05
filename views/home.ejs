@@ -1,3 +1,178 @@
+<style>
+/* Header with Logo and Welcome Text */
+.header {
+    background-color: #121212;
+    padding: 2rem 0;
+    color: white;
+    text-align: center;
+}
+
+.header .logo {
+    width: 150px;  /* Size of the logo */
+    height: 150px;
+    border-radius: 50%;  /* Make the logo circular */
+    object-fit: cover;  /* Ensures the image fits within the circle */
+    margin-bottom: 1rem;
+}
+
+.header .welcome-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    color: #28a745;  /* Green color for the welcome text */
+    margin-top: 0.5rem;
+}
+
+/* Jumbotron Section */
+.jumbotron {
+    background-color: transparent;
+    color: white;
+    padding: 5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.jumbotron .container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.jumbotron .fa-recycle {
+    color: #28a745;
+    animation: bounce 1s infinite;
+}
+
+.jumbotron h1 {
+    font-family: 'Poppins', sans-serif;
+    color: #28a745;
+    font-size: 3.5rem;
+    margin-top: 2rem;
+    animation: fadeIn 2s ease-out;
+}
+
+.jumbotron p {
+    font-size: 1.2rem;
+    color: #dcdcdc;
+    font-weight: 300;
+    animation: fadeIn 2s ease-out;
+}
+
+/* Facts Section */
+.facts {
+    background-color: #1c1c1c;
+    color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 3rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+.facts h3 {
+    font-family: 'Poppins', sans-serif;
+    color: #28a745;
+    font-size: 1.8rem;
+}
+
+.facts ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.facts li {
+    color: grey;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Button Styles */
+.btn {
+    font-size: 1.1rem;
+    padding: 1rem 2.5rem;
+    border-radius: 5px;
+    margin: 1.5rem 0.5rem;
+    font-family: 'Roboto', sans-serif;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-light {
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-light:hover {
+    background-color: #ec971f;
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-dark {
+    background-color: #5e5e5e;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-dark:hover {
+    background-color: #343a40;
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+}
+
+.facts a {
+    color: #f0ad4e;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.facts a:hover {
+    color: #ec971f;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .header .logo {
+        width: 120px;
+        height: 120px;
+    }
+
+    .header .welcome-text {
+        font-size: 2rem;
+    }
+
+    .jumbotron h1 {
+        font-size: 2.5rem;
+    }
+
+    .facts {
+        padding: 1.5rem;
+    }
+
+    .facts li {
+        font-size: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 1.2rem;
+        margin: 0.5rem 0;
+    }
+}
+
+</style>
+<div class="header">
+  <div class="container text-center">
+    <img src="/images/leaf-logo.avif" alt="GreenLog Logo" class="logo">
+    <h1 class="welcome-text">Welcome to GreenLog</h1>
+  </div>
+</div>
+
 <div class="jumbotron centered">
   <div class="container">
     <i class="fas fa-recycle fa-6x text-success"></i>

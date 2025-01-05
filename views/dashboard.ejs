@@ -10,10 +10,128 @@
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 
+<style>
+/* General Styling */
+body {
+    background-color: #1e1e1e; /* Black background */
+    color: #f8f9fa; /* White text */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Dashboard Container */
+.container-fluid {
+    padding: 2rem;
+}
+
+/* Section Headers */
+h1, h3 {
+    color: #28a745; /* Green text */
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+/* Cards */
+.card {
+    background-color: #2b2b2b; /* Dark grey background */
+    border: none;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    max-width: 100%;
+}
+
+.card-body {
+    padding: 1.5rem;
+    color: #f8f9fa;
+}
+
+/* Graph Alignment */
+.graph-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.graph-box {
+    background-color: #2b2b2b;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 450px;
+}
+
+.graph-box canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Profile Section */
+.card-body p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-body strong {
+    color: #ffc107; /* Golden text for emphasis */
+}
+
+/* Recent Logs List */
+.list-group-item {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+    border: 1px solid #444;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    background-color: #444;
+    color: #ffc107;
+}
+
+/* Buttons */
+button {
+    background-color: #ffc107; /* Golden button background */
+    color: #1e1e1e; /* Black text */
+    border: none;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #d4a307; /* Darker golden on hover */
+    transition: background-color 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .container-fluid {
+        padding: 1rem;
+    }
+
+    .graph-container {
+        flex-direction: column;
+    }
+
+    .graph-box {
+        width: 100%; /* Take full width on smaller screens */
+        margin-bottom: 1rem;
+    }
+}
+
+</style>
+
 <body>
     <%- include('partials/header') %>
-
-   
     <div class="container-fluid">
         <div class="row">
             <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
@@ -35,31 +153,17 @@
                 
                 <section class="mb-4">
                     <h3>Waste Tracking Trends</h3>
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Pie Chart for Waste Type Distribution -->
+                    <section class="graph-container">
+                        <div class="graph-box">
                             <canvas id="wasteChart"></canvas>
                         </div>
-                    </div>
-                </section>
-                
-                <section class="mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Line Chart for Monthly Waste Trends -->
+                        <div class="graph-box">
                             <canvas id="monthlyWasteChart"></canvas>
                         </div>
-                    </div>
-                </section>
-                
-                <section class="mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Horizontal Bar Chart for Waste Logged by Day of the Week -->
+                        <div class="graph-box">
                             <canvas id="dayOfWeekWasteChart"></canvas>
                         </div>
-                    </div>
-                </section>
+                    </section>
                 
                 <section class="mb-4">
                     <h3>Recent Waste Logs</h3>
@@ -75,23 +179,24 @@
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                 <div id="wasteDataContainer" data-type-grouped='<%= JSON.stringify(typeGroupedData) %>' data-date-grouped='<%= JSON.stringify(dateGroupedData) %>' data-day-of-week-grouped='<%= JSON.stringify(dayOfWeekGroupedData) %>'></div>
                 
-                <script>
+                
+                
+    <script>
                    document.addEventListener('DOMContentLoaded', () => {
     const typeGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.typeGrouped);
     const dateGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dateGrouped);
     const dayOfWeekGroupedData = JSON.parse(document.getElementById('wasteDataContainer').dataset.dayOfWeekGrouped);
 
-    console.log("Day of Week Data (Frontend):", dayOfWeekGroupedData); // Check the data
+    console.log("Day of Week Data (Frontend):", dayOfWeekGroupedData); 
 
-    // Ensure dayOfWeekGroupedData contains numeric values and rename the variable to avoid conflicts
+    
     const dayOfWeekChartData = dayOfWeekGroupedData.map(item => {
-        const quantity = parseInt(item.quantity, 10); // Convert to number
-        return isNaN(quantity) ? 0 : quantity; // Fallback to 0 if the conversion fails
+        const quantity = parseInt(item.quantity, 10); 
+        return isNaN(quantity) ? 0 : quantity; 
     });
 
-    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekChartData); // Verify conversion
+    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekChartData); 
 
-    // Pie Chart for Waste by Type
     const pieChartData = {
         labels: typeGroupedData.map(log => log.type),
         values: typeGroupedData.map(log => parseFloat(log.quantity)),
@@ -120,7 +225,6 @@
         }
     });
 
-    // Line Chart for Monthly Waste Trends
     const lineChartData = {
         labels: dateGroupedData.map(log => log.month),
         values: dateGroupedData.map(log => parseFloat(log.quantity)),
@@ -157,13 +261,12 @@
         }
     });
 
-    // Horizontal Bar Chart for Waste Logged by Day of the Week
     const dayOfWeekData = {
         labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        values: dayOfWeekChartData,  // Use the modified, numeric values here
+        values: dayOfWeekChartData,  
     };
 
-    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekData); // Verify data structure
+    console.log("Day of Week Data (Frontend for Chart):", dayOfWeekData); 
 
     const ctx2 = document.getElementById('dayOfWeekWasteChart').getContext('2d');
     new Chart(ctx2, {
@@ -178,7 +281,7 @@
         },
         options: {
             responsive: true,
-            indexAxis: 'y', // Makes the chart horizontal
+            indexAxis: 'y', 
             plugins: {
                 legend: { position: 'top' },
                 title: { display: true, text: 'Waste Logged by Day of the Week' },
@@ -196,8 +299,12 @@
     });
 
 });
- </script>
-<%- include('partials/footer') %>              
+ </script>       
+</section>
+</main>
+</div>
+</div>
+<%- include('partials/footer') %>      
 </body>
 
 </html>
