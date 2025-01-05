@@ -1,15 +1,52 @@
-<%- include('partials/header') %>
+<style>
 
-<h2> Here's what you can do to reduce the wastes that you have generated</h2>
-<% recommendations.forEach(function(waste) { %>
-    <h4><%= waste.wasteType.charAt(0).toUpperCase() + waste.wasteType.slice(1) %></h4>
-    <ul>
-      <li><%= waste.suggestions.suggestion1 %></li>
-      <li><%= waste.suggestions.suggestion2 %></li>
-      <li><%= waste.suggestions.suggestion3 %></li>
-      <li><%= waste.suggestions.suggestion4 %></li>
-      <li><%= waste.suggestions.suggestion5 %></li>
-    </ul>
-  <% }); %>
+h2 {
+    color: #4CAF50;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 20px 15px;
+    border-bottom: 2px solid #4CAF50;
+}
 
-  <%- include('partials/footer') %>
+h4 {
+    color: #FF9800;
+    margin-top: 20px;
+    font-weight: bold;
+    padding-left: 15px;
+}
+
+ul {
+    margin-left: 30px;
+    padding: 0;
+    list-style-type: disc;
+}
+
+ul li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    font-size: 16px;
+}
+</style>
+
+<body>
+    <%- include('partials/header') %>
+  
+    <div class="container">
+      <h2>Here's what you can do to reduce the wastes that you have generated</h2>
+  
+      <% recommendations.forEach(function(waste) { %>
+        <h4><%= waste.wasteType.charAt(0).toUpperCase() + waste.wasteType.slice(1) %></h4>
+        <ul>
+          <li><%= waste.suggestions.suggestion1 %></li>
+          <li><%= waste.suggestions.suggestion2 %></li>
+          <li><%= waste.suggestions.suggestion3 %></li>
+          <li><%= waste.suggestions.suggestion4 %></li>
+          <li><%= waste.suggestions.suggestion5 %></li>
+        </ul>
+      <% }); %>
+    </div>
+  
+    <%- include('partials/footer') %>
+  </body>
+  

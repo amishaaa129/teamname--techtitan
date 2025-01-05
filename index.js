@@ -353,7 +353,6 @@ app.get('/recommendations.html', async (req, res) => {
 
       const loggedWastes = result.rows.map(row => row.type);
   
-      // Prepare suggestions for the logged waste types
       const recommendations = loggedWastes.map(wasteType => {
         return {
           wasteType,
@@ -361,7 +360,6 @@ app.get('/recommendations.html', async (req, res) => {
         };
       });
   
-      // Render the recommendations page with the data
       res.render('recommendation.ejs', { recommendations });
   
     } catch (error) {
