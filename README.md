@@ -20,14 +20,15 @@ Bar Chart: Waste generation by day of the week.
 How to Use -->
 
 1. Register an account and log in.
+   For testing the website with already updated data, you can use test@gmail.com with password- abc
 
-2. Log your daily waste.
+3. Log your daily waste.
 
-3. Check the dashboard to visualize trends.
+4. Check the dashboard to visualize trends.
 
-4. View your recommendations for sustainable practices.
+5. View your recommendations for sustainable practices.
 
-5. Monitor your carbon footprint to understand your environmental impact.
+6. Monitor your carbon footprint to understand your environmental impact.
 
 
 Installation steps -->
